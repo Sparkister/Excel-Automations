@@ -1,2 +1,2 @@
 # Excel-Automations
-Storing personal Automations
+Storing personal Excel Automations
