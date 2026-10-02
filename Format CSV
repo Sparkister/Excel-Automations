@@ -1,0 +1,39 @@
+function main(workbook: ExcelScript.Workbook) {
+    const sheet = workbook.getActiveWorksheet();
+    const data = sheet.getUsedRange(true);
+
+    if (!data || data.getRowCount() < 2) {
+        throw new Error("The active sheet does not contain a data set.");
+    }
+
+    // Create a table unless one already exists.
+    const tables = sheet.getTables();
+    let table: ExcelScript.Table;
+
+    if (tables.length === 0) {
+        table = sheet.addTable(data, true);
+    } else {
+        table = tables[0];
+    }
+
+    table.setShowHeaders(true);
+    table.setShowFilterButton(true);
+    table.setPredefinedTableStyle("TableStyleMedium2");
+
+    // Bold and freeze the header.
+    data.getRow(0).getFormat().getFont().setBold(true);
+    sheet.getFreezePanes().unfreeze();
+    sheet.getFreezePanes().freezeRows(1);
+
+    // Autofit columns, capped at a sensible maximum.
+    data.getFormat().autofitColumns();
+
+    const maximumWidth = 240;
+    for (let column = 0; column < data.getColumnCount(); column++) {
+        const format = data.getColumn(column).getFormat();
+
+        if (format.getColumnWidth() > maximumWidth) {
+            format.setColumnWidth(maximumWidth);
+        }
+    }
+}
